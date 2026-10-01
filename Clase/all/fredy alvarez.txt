@@ -1,0 +1,33 @@
+https://github.com/profedaniel86/Series_de_Tiempo/blob/main/2.%20Series/MIA_clase2.ipynb
+
+taget="Ocupados"
+train_len = 210
+train_td = data[[taget]][:train_len]
+test_td = data[[taget]][train_len:]
+
+
+#y = data["TD_13ciudades"]
+y= train_td[taget]
+x = np.linspace(1,train_td.shape[0],train_td.shape[0])
+X = sm.add_constant(x)
+lin = sm.OLS(y,X)
+lin_t = lin.fit()
+print(lin_t.summary())
+
+h=12
+x_for= np.linspace((train_td.shape[0]+1),(train_td.shape[0]+h),h)
+X_for= sm.add_constant(x_for)
+
+dt = lin_t.get_prediction(X_for).summary_frame(alpha = 0.05)
+y_prd = dt['mean']
+yprd_ci_lower = dt['obs_ci_lower']
+yprd_ci_upper = dt['obs_ci_upper']
+preds = pd.DataFrame(np.column_stack([y_prd, yprd_ci_lower, yprd_ci_upper]))
+preds.columns = ['Point_forecast', 'lower_95', 'upper_95']
+print(preds)
+
+
+rmse = np.sqrt(mean_squared_error(test_td,preds['Point_forecast']))
+print(rmse)
+
+
